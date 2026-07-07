@@ -70,16 +70,7 @@ const MyOrders = () => {
   const [otpError, setOtpError] = useState({});
   const [otpSuccess, setOtpSuccess] = useState({});
   const [, setTick] = useState(0);
-  useEffect(() => {
-    if (!user) { navigate("/login"); return; }
-    fetchOrders();
-    const interval = setInterval(() => {
-      setTick(t => t + 1);
-      fetchOrders();
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
+  
   const fetchOrders = useCallback(async () => {
     try {
       const { data } = await API.get("/orders/my-orders");
@@ -89,6 +80,21 @@ const MyOrders = () => {
     }
     setLoading(false);
   }, []);
+  useEffect(() => {
+  if (!user) {
+    navigate("/login");
+    return;
+  }
+
+  fetchOrders();
+
+  const interval = setInterval(() => {
+    setTick(t => t + 1);
+    fetchOrders();
+  }, 60000);
+
+  return () => clearInterval(interval);
+}, [user, navigate, fetchOrders]);
 
   const totalSpent = orders.reduce((acc, o) => acc + (o.totalPrice || 0), 0);
   const deliveredOrders = orders.filter(o =>
@@ -557,7 +563,7 @@ const MyOrders = () => {
                     <p className="mb-3" style={{ color: "#7C2D12" }}>"{order.review.text}"</p>
                   )}
                   {order.review?.photo && (
-                    <img src={`http://localhost:5000${order.review.photo}`}
+                    <img src={`https://pastry-palace-kmf4.onrender.com${order.review.photo}`}
                       alt="Review" className="w-24 h-24 rounded-xl object-cover mb-3" />
                   )}
                   <div className="flex flex-wrap gap-2">
